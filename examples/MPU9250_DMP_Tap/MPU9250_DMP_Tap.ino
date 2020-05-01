@@ -1,0 +1,108 @@
+/************************************************************
+A library for reading data from the MPU9250 using its on board DMP (Digital
+Motion Processor) to offload quaternion calculation, step-counting, and 
+orientation-determining off to the IMU.
+
+This code was tested on an Adafruit ESP32 Feather Huzzah but it should work 
+for any ESP32 based device out there.
+
+This code was based on the Sparkfun MPU9250 Library by:
+Jim Lindblom @ SparkFun Electronics
+original creation date: November 23, 2016
+https://github.com/sparkfun/SparkFun_MPU9250_DMP_Arduino_Library
+
+The library was designed to work with SAMD boards and so it had
+to be modified to work with ESP32 devices. This library works for both
+
+The MPU-9250's digital motion processor (DMP) can monitor for
+single or double tap events on any of the three accelerometer
+axes.
+
+This example turns tap-detection on in the z-axis. Try to
+tap it to the max count of 8!
+*************************************************************/
+#include <SparkFunMPU9250-DMP.h>
+
+#ifdef defined(SAMD)
+ #define SerialPort SerialUSB
+#else
+  #define SerialPort Serial
+#endif
+
+MPU9250_DMP imu;
+
+void setup() 
+{
+  SerialPort.begin(115200);
+
+  // Call imu.begin() to verify communication and initialize
+  if (imu.begin() != INV_SUCCESS)
+  {
+    while (1)
+    {
+      SerialPort.println("Unable to communicate with MPU-9250");
+      SerialPort.println("Check connections, and try again.");
+      SerialPort.println();
+      delay(5000);
+    }
+  }
+
+  // Enable tap detection in the DMP. Set FIFO sample rate to 10Hz.
+  imu.dmpBegin(DMP_FEATURE_TAP, 10);
+  // dmpSetTap parameters, in order, are:
+  // x threshold: 1-1600 (0 to disable)
+  // y threshold: 1-1600 (0 to disable)
+  // z threshold: 1-1600 (0 to disable)
+  // (Threshold units are mg/ms)
+  // taps: Minimum number of taps needed for interrupt (1-4)
+  // tap time: milliseconds between valid taps
+  // tap time multi: max milliseconds between multi-taps
+  unsigned short xThresh = 0;   // Disable x-axis tap
+  unsigned short yThresh = 0;   // Disable y-axis tap
+  unsigned short zThresh = 100; // Set z-axis tap thresh to 100 mg/ms
+  unsigned char taps = 1;       // Set minimum taps to 1
+  unsigned short tapTime = 100; // Set tap time to 100ms
+  unsigned short tapMulti = 1000;// Set multi-tap time to 1s
+  imu.dmpSetTap(xThresh, yThresh, zThresh, taps, tapTime, tapMulti);
+}
+
+void loop() 
+{
+  // Check for new data in the FIFO
+  if ( imu.fifoAvailable() )
+  {
+    // DMP FIFO must be updated in order to update tap data
+    imu.dmpUpdateFifo();
+    // Check for new tap data by polling tapAvailable
+    if ( imu.tapAvailable() )
+    {
+      // If a new tap happened, get the direction and count
+      // by reading getTapDir and getTapCount
+      unsigned char tapDir = imu.getTapDir();
+      unsigned char tapCnt = imu.getTapCount();
+      switch (tapDir)
+      {
+      case TAP_X_UP:
+          SerialPort.print("Tap X+ ");
+          break;
+      case TAP_X_DOWN:
+          SerialPort.print("Tap X- ");
+          break;
+      case TAP_Y_UP:
+          SerialPort.print("Tap Y+ ");
+          break;
+      case TAP_Y_DOWN:
+          SerialPort.print("Tap Y- ");
+          break;
+      case TAP_Z_UP:
+          SerialPort.print("Tap Z+ ");
+          break;
+      case TAP_Z_DOWN:
+          SerialPort.print("Tap Z- ");
+          break;
+      }
+      SerialPort.println(tapCnt);
+    }
+  }
+}
+
