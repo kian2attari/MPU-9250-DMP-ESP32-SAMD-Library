@@ -1,6 +1,8 @@
 MPU-9250 Digital Motion Processor (DMP) Arduino Library for ESP32 and SAMD boards
 ========================================
 
+This library is based heavily on [Sparkfun's MPU9250 DMP Library](https://github.com/sparkfun/SparkFun_MPU-9250-DMP_Arduino_Library)
+
 Advanced Arduino library for the Invensense MPU-9250 inertial measurement unit (IMU), which enables the sensor's digital motion processing (DMP) features. Along with configuring and reading from the accelerometer, gyroscope, and magnetometer, this library also supports the chip's DMP features like:
 
 * Quaternion calculation
