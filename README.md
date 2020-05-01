@@ -17,7 +17,11 @@ This library is intended to use the onboard DMP to offload the above calculation
 If you're looking to bypass the DMP or are looking for something more straightforward, check out the [MPU-9250 Breakout Library by Sparkfun](https://github.com/sparkfun/SparkFun_MPU-9250_Breakout_Arduino_Library), which provides access to all standard MPU-9250 sensor-readings.
 Keep in mind, those are designed to work with SAMD boards and will not work with an ESP32 board.
 
-The following library was tested on a Adafruit Feather ESP32 Huzzah but it should work wonderfully with any ESP32 or SAMD based board. 
+The following library was tested on a Adafruit Feather ESP32 Huzzah but it should work wonderfully with any ESP32 or SAMD based board.
+
+## Note 
+
+ Both the accelerometer and magnetometer could be calibrated for improved accuracy. You can follow [this tutorial]( https://thecavepearlproject.org/2015/05/22/calibrating-any-compass-or-accelerometer-for-arduino/) to complete the calibration!
 
 Repository Contents
 -------------------
